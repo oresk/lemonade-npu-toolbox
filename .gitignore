@@ -1,0 +1,4 @@
+.claude/
+*.log
+*.tmp
+squashfs-root/

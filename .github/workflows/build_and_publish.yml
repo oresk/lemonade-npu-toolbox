@@ -1,0 +1,83 @@
+name: Build and Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      flm_version:
+        description: "FastFlowLM version (e.g. 0.9.36, leave empty for latest)"
+        required: false
+        default: ""
+      lemonade_server_version:
+        description: "Lemonade Server (C++) version (e.g. 10.0.1, leave empty for latest)"
+        required: false
+        default: ""
+  repository_dispatch:
+    types: [new-fastflowlm-release]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository_owner }}/lemonade-npu-toolbox
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android /opt/hostedtoolcache
+          df -h
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve FastFlowLM version
+        id: flm
+        run: |
+          VERSION="${{ github.event.inputs.flm_version || github.event.client_payload.flm_version }}"
+          if [ -z "$VERSION" ]; then
+            VERSION=$(curl -fsSL https://api.github.com/repos/FastFlowLM/FastFlowLM/releases/latest \
+              | jq -r '.tag_name' | sed 's/^v//')
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Resolved FastFlowLM version: ${VERSION}"
+
+      - name: Resolve Lemonade Server version
+        id: lemonade
+        run: |
+          VERSION="${{ github.event.inputs.lemonade_server_version || github.event.client_payload.lemonade_server_version }}"
+          if [ -z "$VERSION" ]; then
+            VERSION=$(curl -fsSL https://api.github.com/repos/lemonade-sdk/lemonade/releases/latest \
+              | jq -r '.tag_name' | sed 's/^v//')
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Resolved Lemonade Server version: ${VERSION}"
+
+      - name: Generate build timestamp
+        id: timestamp
+        run: echo "ts=$(date -u +%Y%m%dT%H%M%S)" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: toolboxes
+          file: toolboxes/Dockerfile.lemonade-npu
+          push: true
+          no-cache: true
+          build-args: |
+            FLM_VERSION=${{ steps.flm.outputs.version }}
+            LEMONADE_SERVER_VERSION=${{ steps.lemonade.outputs.version }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:flm-${{ steps.flm.outputs.version }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:flm-${{ steps.flm.outputs.version }}_${{ steps.timestamp.outputs.ts }}

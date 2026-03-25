@@ -1,0 +1,66 @@
+name: Poll FastFlowLM
+
+on:
+  schedule:
+    # Every 6 hours
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write  # needed to trigger workflow_dispatch
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fetch latest FastFlowLM release
+        id: latest
+        run: |
+          VERSION=$(curl -fsSL https://api.github.com/repos/FastFlowLM/FastFlowLM/releases/latest \
+            | jq -r '.tag_name' | sed 's/^v//')
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Latest FastFlowLM: ${VERSION}"
+
+      - name: Restore cached version
+        id: cache
+        uses: actions/cache/restore@v4
+        with:
+          path: .last-flm-version
+          key: flm-version-${{ steps.latest.outputs.version }}
+
+      - name: Check if version is new
+        id: changed
+        run: |
+          if [ "${{ steps.cache.outputs.cache-hit }}" = "true" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No change — FastFlowLM ${{ steps.latest.outputs.version }} already built."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "New version detected: ${{ steps.latest.outputs.version }}"
+          fi
+
+      - name: Save version to cache
+        if: steps.changed.outputs.changed == 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .last-flm-version
+          key: flm-version-${{ steps.latest.outputs.version }}
+
+      - name: Trigger build
+        if: steps.changed.outputs.changed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createDispatchEvent({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              event_type: 'new-fastflowlm-release',
+              client_payload: {
+                flm_version: '${{ steps.latest.outputs.version }}'
+              }
+            });
+            console.log('Triggered build for FastFlowLM ${{ steps.latest.outputs.version }}');
