@@ -186,7 +186,7 @@ podman run --rm -it \
 ## Toolbx (Fedora)
 
 ```bash
-toolbox create lemonade-npu \
+toolbox create --assumeyes lemonade-npu \
   --image ghcr.io/oresk/lemonade-npu-toolbox:latest \
   -- --device /dev/accel/accel0 \
      --ulimit memlock=-1:-1 \
