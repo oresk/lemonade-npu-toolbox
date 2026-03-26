@@ -49,8 +49,7 @@ chmod +x /usr/local/bin/lemonade /usr/local/bin/lemonade-router /usr/local/bin/l
 cp -a /tmp/opt/share/lemonade-server/resources /usr/local/bin/resources
 mkdir -p /etc/lemonade/conf.d
 cp /tmp/etc/lemonade/lemonade.conf /etc/lemonade/lemonade.conf
-useradd -r -u 65432 -s /usr/sbin/nologin -d /opt/var/lib/lemonade lemonade 2>/dev/null || true
-mkdir -p /opt/var/lib/lemonade && chown lemonade:lemonade /opt/var/lib/lemonade
+mkdir -p /opt/var/lib/lemonade
 rm -rf /tmp/opt /tmp/etc /tmp/lemonade-server.rpm
 
 # ── 4. Lemonade SDK (Python CLI tools) ───────────────────────────────────────
