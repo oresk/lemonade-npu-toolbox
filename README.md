@@ -179,7 +179,7 @@ podman run --rm -it \
   --security-opt seccomp=unconfined \
   -v /path/to/NPU-models:/mnt/models \
   -p 8000:8000 \
-  ghcr.io/klaudije/lemonade-npu-toolbox:latest \
+  ghcr.io/oresk/lemonade-npu-toolbox:latest \
   lemonade-router --host 0.0.0.0 --port 8000
 ```
 
@@ -187,7 +187,7 @@ podman run --rm -it \
 
 ```bash
 toolbox create lemonade-npu \
-  --image ghcr.io/klaudije/lemonade-npu-toolbox:latest \
+  --image ghcr.io/oresk/lemonade-npu-toolbox:latest \
   -- --device /dev/accel/accel0 \
      --ulimit memlock=-1:-1 \
      --security-opt seccomp=unconfined
@@ -198,7 +198,7 @@ toolbox enter lemonade-npu
 
 ```bash
 distrobox create lemonade-npu \
-  --image ghcr.io/klaudije/lemonade-npu-toolbox:latest \
+  --image ghcr.io/oresk/lemonade-npu-toolbox:latest \
   -- --device /dev/accel/accel0 \
      --ulimit memlock=-1:-1 \
      --security-opt seccomp=unconfined
