@@ -1,6 +1,10 @@
 name: Build and Publish
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "toolboxes/**"
   workflow_dispatch:
     inputs:
       flm_version:
