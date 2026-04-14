@@ -11,7 +11,7 @@ The NPU counterpart to the GPU toolboxes at [strix-halo-toolboxes.com](https://s
 | Component | Version | Role |
 |---|---|---|
 | [FastFlowLM](https://github.com/FastFlowLM/FastFlowLM) | 0.9.38 | NPU-native LLM runtime (~52 tok/s @ 16K ctx) |
-| [lemonade-router](https://github.com/lemonade-sdk/lemonade) | 10.2.0 | C++ OpenAI-compatible API server |
+| [lemond](https://github.com/lemonade-sdk/lemonade) | 10.2.0 | C++ OpenAI-compatible API server (`lemond`) |
 | [lemonade-sdk](https://github.com/lemonade-sdk/lemonade) | 9.1.4 | Python CLI tools (`flm-load`, `lemonade-install`) |
 | AMD XRT NPU | 2.21.75 | Userspace NPU runtime (`libxrt-npu2`) |
 | Base | Ubuntu 24.04 | AMD PPA only ships for Ubuntu |
@@ -138,15 +138,15 @@ flm validate
 # [Linux]  amdxdna version: 0.7
 # [Linux]  Memlock Limit: infinity
 
-lemonade-router --version
-# lemonade-router version 10.0.1
+lemonade --version
+# lemonade version 10.2.0
 ```
 
 ### Start the server
 
 ```bash
 export FLM_MODEL_PATH=/mnt/models/NPU-models
-lemonade-router --host 0.0.0.0 --port 8000
+lemond --host 0.0.0.0 --port 8000
 ```
 
 Check available models:
@@ -180,7 +180,7 @@ podman run --rm -it \
   -v /path/to/NPU-models:/mnt/models \
   -p 8000:8000 \
   ghcr.io/oresk/lemonade-npu-toolbox:latest \
-  lemonade-router --host 0.0.0.0 --port 8000
+  lemond --host 0.0.0.0 --port 8000
 ```
 
 ## Toolbx (Fedora)

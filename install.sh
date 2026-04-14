@@ -1,10 +1,10 @@
 #!/bin/bash
 # Install lemonade-npu stack inside a fresh Ubuntu 24.04 LXC/container.
-# Validated clean on Proxmox 8, kernel 7.0.0-8-pve, 2026-03-26.
+# Validated clean on Proxmox 8, kernel 7.0.0-8-pve, 2026-04-14.
 #
 # Usage:
 #   bash install.sh
-#   bash install.sh 0.9.36 10.0.1   # pin FLM and lemonade-server versions
+#   bash install.sh 0.9.38 10.2.0   # pin FLM and lemonade-server versions
 
 set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
@@ -32,7 +32,7 @@ rm /tmp/fastflowlm.deb
 rm -rf /var/lib/apt/lists/*
 
 # ── 2. libwebsockets.so.20 symlink ───────────────────────────────────────────
-# Ubuntu 24.04 ships .so.19; lemonade-router requires .so.20.
+# Ubuntu 24.04 ships .so.19; lemonade-server requires .so.20.
 # ABI is compatible within the 4.x series.
 ln -sf /lib/x86_64-linux-gnu/libwebsockets.so.19 \
        /lib/x86_64-linux-gnu/libwebsockets.so.20
@@ -40,15 +40,17 @@ ldconfig
 
 # ── 3. Lemonade Server (C++) ─────────────────────────────────────────────────
 # Ships as RPM only (no .deb). Extract and install binaries + resources.
-# resources/ must sit next to lemonade-router (path is relative to executable).
+# resources/ must sit next to lemonade-server (path is relative to executable).
+# v10.2.0+: binaries are lemonade, lemonade-server, lemonade-web-app, lemond
 curl -fsSL -o /tmp/lemonade-server.rpm \
   "https://github.com/lemonade-sdk/lemonade/releases/download/v${LEMONADE_SERVER_VERSION}/lemonade-server-${LEMONADE_SERVER_VERSION}.x86_64.rpm"
 cd /tmp && rpm2cpio /tmp/lemonade-server.rpm | cpio -idm 2>/dev/null || true
-cp /tmp/opt/bin/lemonade /tmp/opt/bin/lemonade-router /tmp/opt/bin/lemonade-server /usr/local/bin/
-chmod +x /usr/local/bin/lemonade /usr/local/bin/lemonade-router /usr/local/bin/lemonade-server
+cp /tmp/opt/bin/lemonade /tmp/opt/bin/lemonade-server /usr/local/bin/
+cp -f /tmp/opt/bin/lemonade-web-app /tmp/opt/bin/lemond /usr/local/bin/ 2>/dev/null || true
+chmod +x /usr/local/bin/lemonade /usr/local/bin/lemonade-server
 cp -a /tmp/opt/share/lemonade-server/resources /usr/local/bin/resources
 mkdir -p /etc/lemonade/conf.d
-cp /tmp/etc/lemonade/lemonade.conf /etc/lemonade/lemonade.conf
+cp -a /tmp/etc/lemonade/conf.d/. /etc/lemonade/conf.d/ 2>/dev/null || true
 mkdir -p /opt/var/lib/lemonade
 rm -rf /tmp/opt /tmp/etc /tmp/lemonade-server.rpm
 
@@ -66,7 +68,7 @@ export FLM_MODEL_PATH="${FLM_MODEL_PATH:-/mnt/models}"
 echo ""
 flm validate
 echo ""
-lemonade-router --version
+lemonade --version
 echo ""
 echo "Done. Start the server with:"
-echo "  FLM_MODEL_PATH=/mnt/models/NPU-models lemonade-router --host 0.0.0.0 --port 8000"
+echo "  FLM_MODEL_PATH=/mnt/models/NPU-models lemond"
