@@ -9,8 +9,8 @@
 set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 
-FLM_VERSION="${1:-0.9.36}"
-LEMONADE_SERVER_VERSION="${2:-10.0.1}"
+FLM_VERSION="${1:-0.9.38}"
+LEMONADE_SERVER_VERSION="${2:-10.2.0}"
 
 echo "==> FastFlowLM ${FLM_VERSION}  |  lemonade-server ${LEMONADE_SERVER_VERSION}"
 

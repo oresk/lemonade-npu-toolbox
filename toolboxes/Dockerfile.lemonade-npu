@@ -3,7 +3,7 @@ FROM ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 # ARGs must be declared before their first use in RUN instructions.
-ARG FLM_VERSION=0.9.36
+ARG FLM_VERSION=0.9.38
 
 # All apt installs share one apt-get update so FastFlowLM deps (libavcodec60 etc.)
 # are resolvable when installing the .deb. Clearing lists after all installs are done.
@@ -43,7 +43,7 @@ RUN ln -sf /lib/x86_64-linux-gnu/libwebsockets.so.19 \
 # Distributed as RPM only; we extract and install binaries + resources manually.
 # The lemonade-server-dev Python server was deprecated in v10 in favour of this.
 # https://github.com/lemonade-sdk/lemonade
-ARG LEMONADE_SERVER_VERSION=10.0.1
+ARG LEMONADE_SERVER_VERSION=10.2.0
 RUN curl -fsSL -o /tmp/lemonade-server.rpm \
       "https://github.com/lemonade-sdk/lemonade/releases/download/v${LEMONADE_SERVER_VERSION}/lemonade-server-${LEMONADE_SERVER_VERSION}.x86_64.rpm" && \
     cd /tmp && rpm2cpio /tmp/lemonade-server.rpm | cpio -idm 2>&1 | tail -2 || true && \

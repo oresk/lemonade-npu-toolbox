@@ -10,8 +10,8 @@ The NPU counterpart to the GPU toolboxes at [strix-halo-toolboxes.com](https://s
 
 | Component | Version | Role |
 |---|---|---|
-| [FastFlowLM](https://github.com/FastFlowLM/FastFlowLM) | 0.9.36 | NPU-native LLM runtime (~52 tok/s @ 16K ctx) |
-| [lemonade-router](https://github.com/lemonade-sdk/lemonade) | 10.0.1 | C++ OpenAI-compatible API server |
+| [FastFlowLM](https://github.com/FastFlowLM/FastFlowLM) | 0.9.38 | NPU-native LLM runtime (~52 tok/s @ 16K ctx) |
+| [lemonade-router](https://github.com/lemonade-sdk/lemonade) | 10.2.0 | C++ OpenAI-compatible API server |
 | [lemonade-sdk](https://github.com/lemonade-sdk/lemonade) | 9.1.4 | Python CLI tools (`flm-load`, `lemonade-install`) |
 | AMD XRT NPU | 2.21.75 | Userspace NPU runtime (`libxrt-npu2`) |
 | Base | Ubuntu 24.04 | AMD PPA only ships for Ubuntu |
